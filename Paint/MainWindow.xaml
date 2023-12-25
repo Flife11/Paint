@@ -1,0 +1,200 @@
+﻿<Fluent:RibbonWindow x:Class="Paint.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+        xmlns:local="clr-namespace:Paint"
+        mc:Ignorable="d"
+                             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{materialDesign:MaterialDesignFont}"                                    
+        Title="MainWindow" Height="450" Width="800" 
+                     Loaded="Window_Loaded">
+<Fluent:RibbonWindow.Resources>
+    <Style TargetType="{x:Type CheckBox}" x:Key="EyeCheckboxStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="checkboxImage" Source="../Resource/Icon/disable-eye.png" Width="32"/>
+                        <ContentPresenter/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="checkboxImage" Property="Source" Value="../Resource/Icon/eye.png"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</Fluent:RibbonWindow.Resources>
+
+<DockPanel>
+    <Fluent:Ribbon DockPanel.Dock="Top" Name="Ribbon">
+        <Fluent:Ribbon.Menu>
+            <Fluent:Backstage>
+                <Fluent:BackstageTabControl>
+                    <Fluent:Button x:Name="buttonSave" Header="Save"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonSaveAs" Header="Save as"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonOpen" Header="Open"></Fluent:Button>
+                </Fluent:BackstageTabControl>
+            </Fluent:Backstage>
+        </Fluent:Ribbon.Menu>
+
+        <Fluent:RibbonTabItem Header="Home" >
+            <Fluent:RibbonGroupBox Header="Clipboard">
+                <Fluent:Button Header="Paste" Icon="Resource/Icon/60329.PNG" SizeDefinition="Large" Name="PasteButton"></Fluent:Button>
+                <Fluent:Button Header="Cut" Icon="Resource/Icon/60337.PNG" SizeDefinition="Middle,Small" Name="CutButton"></Fluent:Button>
+                <Fluent:Button Header="Copy" Icon="Resource/Icon/60341.PNG" SizeDefinition="Middle,Small" Name="CopyButton"></Fluent:Button>
+            </Fluent:RibbonGroupBox>
+            <Fluent:RibbonGroupBox Header="Tool" >
+                <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Name="Undo"></Fluent:Button>
+                <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Name="Redo"></Fluent:Button>
+                <Fluent:Button  Header="Delete" Icon="Resource/Icon/60565.PNG" SizeDefinition="Middle,Small" Name="DeleteButton"></Fluent:Button>
+
+                    <Fluent:ToggleButton  Header="Select" Icon="Resource/Icon/Move.PNG" SizeDefinition="Middle,Small" Name="SelectButton"></Fluent:ToggleButton>
+
+                </Fluent:RibbonGroupBox>
+            <Fluent:RibbonGroupBox x:Name="ShapeGroupBox" Header="Shape" MinWidth="50" HorizontalContentAlignment="Left">
+
+
+            </Fluent:RibbonGroupBox>
+            <Fluent:RibbonGroupBox Header="Color">
+
+
+
+
+                <Fluent:SplitButton x:Name="buttonOutline" SizeDefinition="Medium" Header="Outline">
+                    <Fluent:SplitButton.Icon>
+
+                        <Grid>
+                            <Image Source="Resource/Icon/Outline.PNG"></Image>
+                            <Rectangle Width="35" Height="6" VerticalAlignment="Bottom">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{Binding StrokeColor}"></SolidColorBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                        </Grid>
+                    </Fluent:SplitButton.Icon>
+                    <Fluent:ColorGallery x:Name="buttonOutlineGallery" SelectedColor="{Binding StrokeColor, Mode=TwoWay}">
+                    </Fluent:ColorGallery>
+                </Fluent:SplitButton>
+                <Fluent:SplitButton x:Name="buttonFill" SizeDefinition="Medium" Header="Fill" >
+                    <Fluent:SplitButton.Icon>
+                        <Grid>
+                            <Image Source="Resource/Icon/60420.PNG"></Image>
+                            <Rectangle Width="24" Height="6" VerticalAlignment="Bottom">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{Binding FillColor}"></SolidColorBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                        </Grid>
+                    </Fluent:SplitButton.Icon>
+                    <Fluent:ColorGallery x:Name="buttonFillGallery" SelectedColor="{Binding FillColor, Mode=TwoWay}">
+
+                    </Fluent:ColorGallery>
+                </Fluent:SplitButton>
+
+                <Fluent:Spinner x:Name="buttonStrokeSize" Format="0 px" Header="Size" Value="1"></Fluent:Spinner>
+                <Fluent:ComboBox x:Name="buttonStrokeType" Header="Stroke" SelectedIndex="0" >
+                    <ComboBoxItem Content="Solid"></ComboBoxItem>
+                    <ComboBoxItem Content="Dash"></ComboBoxItem>
+                    <ComboBoxItem Content="Dot"></ComboBoxItem>
+                    <ComboBoxItem Content="Dash Dot"></ComboBoxItem>
+
+                </Fluent:ComboBox>
+            </Fluent:RibbonGroupBox>
+
+
+                <Fluent:RibbonGroupBox x:Name="Layer" Header="Layer" Height="120">
+                    <ListView Name="ListViewLayers" Padding="0 0 0 0" Margin="0 0 0 0" Height="90" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Single" SelectedIndex="0">
+                        <ListView.Resources>
+                            <ContextMenu x:Key="ItemContextMenu">
+                                <MenuItem x:Name="DeleteLayerBtn" Header="Delete"></MenuItem>
+                            </ContextMenu>
+                        </ListView.Resources>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
+                                <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=isChecked}" Value="False">
+                                        <Setter Property="Foreground" Value="DarkGray"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#cce4f7"/>
+
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Height="15">
+                                    <Fluent:CheckBox Height="15" Padding="0 0 0 0" Margin="0 0 0 0" IsChecked="{Binding isChecked}" Style="{StaticResource EyeCheckboxStyle}">
+                                    </Fluent:CheckBox>
+                                    <TextBlock Height="15">Layer_</TextBlock>
+                                    <TextBlock Height="15" Text="{Binding index}" Margin="0 0 10 0"></TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Fluent:Button  Header="Add" Icon="Resource/Icon/Add.PNG" SizeDefinition="medium"></Fluent:Button>
+                    <Fluent:Button  Header="Delete" Icon="Resource/Icon/delete.PNG" SizeDefinition="medium"></Fluent:Button>
+                </Fluent:RibbonGroupBox>
+            </Fluent:RibbonTabItem>
+
+    </Fluent:Ribbon>
+    <Grid Background="#d3dceb">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer
+                x:Name="CanvasScroll"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.CornerRectangleVisibility="Collapsed">
+                <Canvas Height="285" Width="8000"
+                    x:Name="DrawCanvas" Background="White" Margin="4,2,0,0"
+                    ClipToBounds="True">
+                </Canvas>
+        </ScrollViewer>
+         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp"></Canvas>
+            <Grid Grid.Row="1" Background="#f0f0f0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel  Grid.Column="0" Orientation="Horizontal" Margin="5,0,0,0">
+                    <Image  Width="16" Height="16" Source="Resource/Icon/cross.png"></Image>
+                    <Label Name="CoordinateLabel"></Label>
+                </StackPanel>
+                <Border Grid.Column="1" Grid.RowSpan="4" BorderBrush="#dbdbdb" 
+            BorderThickness="1,0,0,0" Background="{x:Null}" />
+                <Label Grid.Column="1" Name="ShapeSize">
+                    <TextBlock x:Name="testblock"></TextBlock>
+                </Label>
+                <Border Grid.Column="2" Grid.RowSpan="4" BorderBrush="#dbdbdb" 
+            BorderThickness="1,0,0,0" Background="{x:Null}" />
+                <Label Grid.Column="2" Width="250">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="100%"
+                        Name="Proportion"/>
+                        <Slider x:Name="ZoomingSlider" Grid.Column="1"  ValueChanged="ZoomingSlider_ValueChanged"
+                     Minimum="50"  Maximum="400" TickFrequency="50" materialDesign:SliderAssist.OnlyShowFocusVisualWhileDragging="True" IsSnapToTickEnabled="True" Cursor="Hand"  Foreground="SlateGray"/>
+                    </Grid>
+                </Label>
+            </Grid>
+        </Grid>
+</DockPanel>
+</Fluent:RibbonWindow>

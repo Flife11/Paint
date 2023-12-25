@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resource\Icon\60329.png" />
+    <None Remove="Resource\Icon\60337.png" />
+    <None Remove="Resource\Icon\60341.png" />
+    <None Remove="Resource\Icon\60420.png" />
+    <None Remove="Resource\Icon\60429.png" />
+    <None Remove="Resource\Icon\60433.png" />
+    <None Remove="Resource\Icon\60449.png" />
+    <None Remove="Resource\Icon\60565.png" />
+    <None Remove="Resource\Icon\add.png" />
+    <None Remove="Resource\Icon\Bold.png" />
+    <None Remove="Resource\Icon\cross.png" />
+    <None Remove="Resource\Icon\delete.png" />
+    <None Remove="Resource\Icon\disable-eye.png" />
+    <None Remove="Resource\Icon\eye.png" />
+    <None Remove="Resource\Icon\FontColor.png" />
+    <None Remove="Resource\Icon\Italic.png" />
+    <None Remove="Resource\Icon\Move.png" />
+    <None Remove="Resource\Icon\Outline.png" />
+    <None Remove="Resource\Icon\Paint.ico" />
+    <None Remove="Resource\Icon\Redo.png" />
+    <None Remove="Resource\Icon\Size.png" />
+    <None Remove="Resource\Icon\Size1.png" />
+    <None Remove="Resource\Icon\Size2.png" />
+    <None Remove="Resource\Icon\Size3.png" />
+    <None Remove="Resource\Icon\Size4.png" />
+    <None Remove="Resource\Icon\Strikethrough.png" />
+    <None Remove="Resource\Icon\Text.png" />
+    <None Remove="Resource\Icon\Underline.png" />
+    <None Remove="Resource\Icon\Undo.png" />
+    <None Remove="Resource\Icon\ZoomIn.png" />
+    <None Remove="Resource\Icon\ZoomOut.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fluent.Ribbon" Version="10.0.4" />
+    <PackageReference Include="MaterialDesignColors" Version="2.1.4" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="0.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resource\Icon\60329.png" />
+    <Resource Include="Resource\Icon\60337.png" />
+    <Resource Include="Resource\Icon\60341.png" />
+    <Resource Include="Resource\Icon\60420.png" />
+    <Resource Include="Resource\Icon\60429.png" />
+    <Resource Include="Resource\Icon\60433.png" />
+    <Resource Include="Resource\Icon\60449.png" />
+    <Resource Include="Resource\Icon\60565.png" />
+    <Resource Include="Resource\Icon\add.png" />
+    <Resource Include="Resource\Icon\Bold.png" />
+    <Resource Include="Resource\Icon\cross.png" />
+    <Resource Include="Resource\Icon\delete.png" />
+    <Resource Include="Resource\Icon\disable-eye.png" />
+    <Resource Include="Resource\Icon\eye.png" />
+    <Resource Include="Resource\Icon\FontColor.png" />
+    <Resource Include="Resource\Icon\Italic.png" />
+    <Resource Include="Resource\Icon\Move.png" />
+    <Resource Include="Resource\Icon\Outline.png" />
+    <Resource Include="Resource\Icon\Paint.ico" />
+    <Resource Include="Resource\Icon\Redo.png" />
+    <Resource Include="Resource\Icon\Size.png" />
+    <Resource Include="Resource\Icon\Size1.png" />
+    <Resource Include="Resource\Icon\Size2.png" />
+    <Resource Include="Resource\Icon\Size3.png" />
+    <Resource Include="Resource\Icon\Size4.png" />
+    <Resource Include="Resource\Icon\Strikethrough.png" />
+    <Resource Include="Resource\Icon\Text.png" />
+    <Resource Include="Resource\Icon\Underline.png" />
+    <Resource Include="Resource\Icon\Undo.png" />
+    <Resource Include="Resource\Icon\ZoomIn.png" />
+    <Resource Include="Resource\Icon\ZoomOut.png" />
+  </ItemGroup>
+
+</Project>

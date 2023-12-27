@@ -14,7 +14,7 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{materialDesign:MaterialDesignFont}"                                    
-        Title="MainWindow" Height="450" Width="800" 
+        Title="MainWindow" Height="600" Width="800" 
                      Loaded="Window_Loaded">
 <Fluent:RibbonWindow.Resources>
     <Style TargetType="{x:Type CheckBox}" x:Key="EyeCheckboxStyle">
@@ -53,7 +53,9 @@
                 <Fluent:Button Header="Paste" Icon="Resource/Icon/60329.PNG" SizeDefinition="Large" Name="PasteButton"></Fluent:Button>
                 <Fluent:Button Header="Cut" Icon="Resource/Icon/60337.PNG" SizeDefinition="Middle,Small" Name="CutButton"></Fluent:Button>
                 <Fluent:Button Header="Copy" Icon="Resource/Icon/60341.PNG" SizeDefinition="Middle,Small" Name="CopyButton"></Fluent:Button>
-            </Fluent:RibbonGroupBox>
+                    <Fluent:Button Header="Image" Icon="Resource/Icon/image.PNG" SizeDefinition="Middle,Small" Name="AddImageButton" Click="OpenImageDialog_Click"></Fluent:Button>
+
+                </Fluent:RibbonGroupBox>
             <Fluent:RibbonGroupBox Header="Tool" >
                 <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Name="Undo"></Fluent:Button>
                 <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Name="Redo"></Fluent:Button>
@@ -163,7 +165,9 @@
                     ClipToBounds="True">
                 </Canvas>
         </ScrollViewer>
-         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp"></Canvas>
+         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
+              
+            </Canvas>
             <Grid Grid.Row="1" Background="#f0f0f0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

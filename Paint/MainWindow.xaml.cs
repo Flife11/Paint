@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -12,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Fluent;
+using Microsoft.Win32;
 
 namespace Paint
 {
@@ -25,7 +27,7 @@ namespace Paint
         {
             InitializeComponent();
         }
-
+        private System.Windows.Controls.Image SelectedImage;
         bool _isDrawing = false;
         PointP _start = new PointP();
         PointP _end = new PointP();
@@ -143,6 +145,7 @@ namespace Paint
             _preview.Thickness = (int)buttonStrokeSize.Value;
             _preview.StrokeType = StrokeTypes[buttonStrokeType.SelectedIndex];
             _preview.Fill = FillColor;
+            e.Handled = true;
         }
 
         private void ReDraw()//xóa và vẽ lại
@@ -153,18 +156,19 @@ namespace Paint
                 return;
 
             layers[_currentLayer]._shapes = _shapes;
-
             //Duyệt xem layer nào được check thì vẽ
             for (int i = 0; i < layers.Count(); i++)
             {
                 if (layers[i].isChecked)
                 {
+
                     foreach (var shape in layers[i]._shapes)
                     {
                         UIElement element = shape.Draw(SelectButton.IsChecked ?? false, i == _currentLayer);
                         DrawCanvas.Children.Add(element);
                         DrawCanvas.UpdateLayout();
                     }
+
                 }
             }
         }
@@ -172,7 +176,7 @@ namespace Paint
         {
             if (_isDrawing)
             {
-                Point p = e.GetPosition(DrawCanvas);                
+                Point p = e.GetPosition(DrawCanvas);
                 _end = new PointP(p.X, p.Y);
                 _preview.Points.Clear();
                 _preview.Points.Add(_start); _preview.Points.Add(_end);
@@ -180,7 +184,7 @@ namespace Paint
                 DrawCanvas.Children.Add(_preview.Draw(SelectButton.IsChecked ?? false, true));
             }
         }
-
+        
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(DrawCanvas);
@@ -217,7 +221,6 @@ namespace Paint
                 };
 
                 _shapes.Add(_preview);
-
                 // Sinh ra đối tượng mẫu kế
                 _preview = _prototypes[_seletedPrototypeName].Clone();
 
@@ -241,6 +244,70 @@ namespace Paint
         private void ZoomingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
+        }
+
+        private void OpenImageDialog_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Image files|*.png;*.jpg;*.jpeg;*.gif;*.bmp|All files|*.*";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // Lấy đường dẫn tệp ảnh đã chọn
+                string imagePath = openFileDialog.FileName;
+
+                // Gọi hàm để vẽ ảnh lên Canvas
+                DrawImageOnCanvas(imagePath,_start);
+            }
+        }
+        private void DrawImageOnCanvas(string imagePath, PointP position)
+        {
+            try
+            {
+                BitmapImage bitmapImage = new BitmapImage(new Uri(imagePath));
+
+                Image imageControl = new Image();
+                imageControl.Source = bitmapImage;
+
+                imageControl.Width = bitmapImage.PixelWidth;
+                imageControl.Height = bitmapImage.PixelHeight;
+
+                // tao 1 RectangleShape chua thong tin cua Anh
+
+                RectangleShape rectangleShape = new RectangleShape();
+                rectangleShape.IsSelected = true;
+                rectangleShape.Points.Add(position);
+                PointP _p = new PointP();
+                _p.X = position.X + imageControl.Width;
+                _p.Y = position.Y + imageControl.Height;
+                rectangleShape.Points.Add(_p);
+                rectangleShape._brush = bitmapImage;
+                rectangleShape.Color = StrokeColor;
+                rectangleShape.Thickness = 0;
+                rectangleShape.StrokeType = StrokeTypes[buttonStrokeType.SelectedIndex];
+                rectangleShape.Fill = FillColor;
+
+                _shapes.Add(rectangleShape);
+                //Canvas.SetLeft(rectangle, position.X);
+                ReDraw();
+                int i = _shapes.Count - 1;
+                _selectedShapeIndex = i;
+                if (_shapes[i].Name != "Line")
+                {
+                    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
+                        .Add(new ResizeShapeAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
+                }
+                else
+                {
+                    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
+                        .Add(new ResizeLineAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

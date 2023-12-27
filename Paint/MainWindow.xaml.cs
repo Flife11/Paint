@@ -282,7 +282,7 @@ namespace Paint
                 _p.Y = position.Y + imageControl.Height;
                 rectangleShape.Points.Add(_p);
                 rectangleShape._brush = bitmapImage;
-                rectangleShape.Color = StrokeColor;
+                rectangleShape.Color = Color.FromArgb(0,0,0, 0); ;
                 rectangleShape.Thickness = 0;
                 rectangleShape.StrokeType = StrokeTypes[buttonStrokeType.SelectedIndex];
                 rectangleShape.Fill = FillColor;

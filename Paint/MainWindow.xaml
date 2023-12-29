@@ -116,7 +116,7 @@
 
 
                 <Fluent:RibbonGroupBox x:Name="Layer" Header="Layer" Height="120">
-                    <ListView Name="ListViewLayers" Padding="0 0 0 0" Margin="0 0 0 0" Height="90" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Single" SelectedIndex="0">
+                    <ListView Name="ListViewLayers" Padding="0 0 0 0" Margin="0 0 0 0" Height="90" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionChanged="ListViewLayers_SelectionChanged" SelectionMode="Single" SelectedIndex="0">
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
                                 <MenuItem x:Name="DeleteLayerBtn" Header="Delete"></MenuItem>
@@ -147,8 +147,8 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Fluent:Button  Header="Add" Icon="Resource/Icon/Add.PNG" SizeDefinition="medium"></Fluent:Button>
-                    <Fluent:Button  Header="Delete" Icon="Resource/Icon/delete.PNG" SizeDefinition="medium"></Fluent:Button>
+                    <Fluent:Button  Header="Add" Icon="Resource/Icon/Add.PNG" SizeDefinition="medium"  Click="AddLayerBtn_Click"></Fluent:Button>
+                    <Fluent:Button  Header="Delete" Icon="Resource/Icon/delete.PNG" SizeDefinition="medium"  Click="DeleteLayerBtn_Click"></Fluent:Button>
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 

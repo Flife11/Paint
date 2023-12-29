@@ -44,6 +44,7 @@ namespace Paint
         BindingList<Layer> layers = new BindingList<Layer>() { new Layer(0, true) };
         public int _currentLayer = 0;
         public int lowerLayersShapesCount = 0;
+        public bool isDelete = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -121,6 +122,11 @@ namespace Paint
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if(isDelete)
+            {
+                MessageBox.Show("Please choose atleast 1 layer");
+                return;
+            }
             if (_currentLayer == -1)
             {
                 MessageBox.Show("Please choose atleast 1 layer");
@@ -154,6 +160,7 @@ namespace Paint
 
             if (_currentLayer == -1)
                 return;
+            lowerLayersShapesCount = 0;
 
             layers[_currentLayer]._shapes = _shapes;
             //Duyệt xem layer nào được check thì vẽ
@@ -161,7 +168,10 @@ namespace Paint
             {
                 if (layers[i].isChecked)
                 {
-
+                    //if(i!=_currentLayer)
+                    //{
+                    //    lowerLayersShapesCount = lowerLayersShapesCount + layers[i]._shapes.Count;
+                    //}
                     foreach (var shape in layers[i]._shapes)
                     {
                         UIElement element = shape.Draw(SelectButton.IsChecked ?? false, i == _currentLayer);
@@ -206,38 +216,38 @@ namespace Paint
                         _shapes[index].IsSelected = false;
 
                         //remove adorner của shape khác
-                        Adorner[] toRemoveArray =
-                            AdornerLayer.GetAdornerLayer(DrawCanvas).GetAdorners(DrawCanvas.Children[lowerLayersShapesCount + index]);
-                        if (toRemoveArray != null)
-                        {
-                            for (int x = 0; x < toRemoveArray.Length; x++)
-                            {
-                                AdornerLayer.GetAdornerLayer(DrawCanvas).Remove(toRemoveArray[x]);
-                            }
-                        }
+                        //Adorner[] toRemoveArray =
+                        //    AdornerLayer.GetAdornerLayer(DrawCanvas).GetAdorners(DrawCanvas.Children[lowerLayersShapesCount + index]);
+                        //if (toRemoveArray != null)
+                        //{
+                        //    for (int x = 0; x < toRemoveArray.Length; x++)
+                        //    {
+                        //        AdornerLayer.GetAdornerLayer(DrawCanvas).Remove(toRemoveArray[x]);
+                        //    }
+                        //}
                     };
                     _selectedShapeIndex = null;
                     return;
                 };
 
                 _shapes.Add(_preview);
+                
                 // Sinh ra đối tượng mẫu kế
                 _preview = _prototypes[_seletedPrototypeName].Clone();
 
                 ReDraw();
                 int i = _shapes.Count - 1;
                 _selectedShapeIndex = i;
-                if (_shapes[i].Name != "Line")
-                {
-                    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
-                        .Add(new ResizeShapeAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
-                }
-                else
-                {
-                    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
-                        .Add(new ResizeLineAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
-                }
-
+                //if (_shapes[i].Name != "Line")
+                //{
+                //    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
+                //        .Add(new ResizeShapeAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
+                //}
+                //else
+                //{
+                //    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
+                //        .Add(new ResizeLineAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
+                //}
             }
         }
 
@@ -292,22 +302,67 @@ namespace Paint
                 ReDraw();
                 int i = _shapes.Count - 1;
                 _selectedShapeIndex = i;
-                if (_shapes[i].Name != "Line")
-                {
-                    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
-                        .Add(new ResizeShapeAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
-                }
-                else
-                {
-                    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
-                        .Add(new ResizeLineAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
-                }
-                
+
+                //if (_shapes[i].Name != "Line")
+                //{
+                //    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount +i])
+                //        .Add(new ResizeShapeAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
+                //}
+                //else
+                //{
+                //    AdornerLayer.GetAdornerLayer(DrawCanvas.Children[lowerLayersShapesCount + i])
+                //        .Add(new ResizeLineAdorner(DrawCanvas.Children[lowerLayersShapesCount + i], _shapes[i]));
+                //}
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            layers.Add(new Layer(layers.Count));
+        }
+
+        private void DeleteLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //Đảm bảo luôn có ít nhất 1 layer
+            if (layers.Count == 1)
+            {
+                MessageBox.Show("Can not delete this layer, you need to keep atleast 1 layer");
+                return;
+            }
+
+            if (ListViewLayers.SelectedItems.Count == 0)
+                return;
+            layers.RemoveAt(ListViewLayers.SelectedIndex);
+            _currentLayer = 0;
+            
+
+            isDelete = true;
+            OnLayersUpdated();
+        }
+
+        private void ListViewLayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //Check lúc xóa thì không có layer nào được chọn nên ListViewLayers.SelectedIndex=-1
+            if (!layers.Any()) return;
+            
+            _currentLayer = ListViewLayers.SelectedIndex == -1 ? 0 : ListViewLayers.SelectedIndex;
+            _shapes = layers[_currentLayer]._shapes;
+            isDelete = false;
+        }
+        private void OnLayersUpdated()
+        {
+            if (_selectedShapeIndex is not null)
+            {
+                _selectedShapeIndex = null;
+            }
+            _cutSelectedShapeIndex = null;
+            _copiedShape = null;
+            ReDraw();
+        }
+
     }
 }

@@ -158,12 +158,12 @@
         </Grid.RowDefinitions>
         <ScrollViewer
                 x:Name="CanvasScroll"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.CornerRectangleVisibility="Collapsed">
-                <Canvas Height="285" Width="8000"
+                <Canvas Height="285" Width="800"
                     x:Name="DrawCanvas" Background="White" Margin="4,2,0,0"
-                    ClipToBounds="True">
+                    ClipToBounds="True" >
                 </Canvas>
         </ScrollViewer>
-         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp"></Canvas>
+         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" Margin="0,0,17,17"></Canvas>
             <Grid Grid.Row="1" Background="#f0f0f0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -190,8 +190,8 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="100%"
                         Name="Proportion"/>
-                        <Slider x:Name="ZoomingSlider" Grid.Column="1"  ValueChanged="ZoomingSlider_ValueChanged"
-                     Minimum="50"  Maximum="400" TickFrequency="50" materialDesign:SliderAssist.OnlyShowFocusVisualWhileDragging="True" IsSnapToTickEnabled="True" Cursor="Hand"  Foreground="SlateGray"/>
+                        <Slider x:Name="ZoomSlider" Grid.Column="1" ValueChanged="ZoomSlider_ValueChanged"
+                     Minimum="50"  Maximum="300" TickFrequency="10" Value="100" materialDesign:SliderAssist.OnlyShowFocusVisualWhileDragging="True" IsSnapToTickEnabled="True" Cursor="Hand"  Foreground="SlateGray" Margin="0,-1,-143,-3" />
                     </Grid>
                 </Label>
             </Grid>

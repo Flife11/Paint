@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Fluent;
 
+
 namespace Paint
 {
     /// <summary>
@@ -20,7 +21,8 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : RibbonWindow, INotifyPropertyChanged
     {        
-        List<DoubleCollection> StrokeTypes = new List<DoubleCollection>() { new DoubleCollection() { 1, 0 }, new DoubleCollection() { 6, 1 }, new DoubleCollection() { 1 }, new DoubleCollection() { 6, 1, 1, 1 } };        
+        List<DoubleCollection> StrokeTypes = new List<DoubleCollection>() { new DoubleCollection() { 1, 0 }, new DoubleCollection() { 6, 1 }, new DoubleCollection() { 1 }, new DoubleCollection() { 6, 1, 1, 1 } };   
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -34,10 +36,14 @@ namespace Paint
         List<IShape> _shapes = new List<IShape>();
         string _seletedPrototypeName = "";
         public static Dictionary<string, IShape> _prototypes = new Dictionary<string, IShape>();
+
+
         //select, cut, copy, paste
         private int? _selectedShapeIndex;
         private int? _cutSelectedShapeIndex;
         private IShape _copiedShape;
+
+
         //Layer
         BindingList<Layer> layers = new BindingList<Layer>() { new Layer(0, true) };
         public int _currentLayer = 0;
@@ -48,6 +54,10 @@ namespace Paint
         // Shape style
         public Color StrokeColor { get; set; }
         public Color FillColor { get; set; }
+
+        // Zoom
+        private int _startZoom = 0;
+        private double _currentZoomPercent = 100;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -238,9 +248,43 @@ namespace Paint
             }
         }
 
-        private void ZoomingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            //handle skip zoom start: one for onload - one for after loading, set sliderbar's value to 100
 
+            if (_startZoom < 2)
+            {
+                _startZoom++;
+                return;
+            }
+
+            //start zooming
+
+            var currentZoomValue = (double)ZoomSlider.Value;
+            var scale = new ScaleTransform();
+            double percentage = (currentZoomValue / 100);
+
+            DrawCanvas.RenderTransform = scale;            
+            scale.ScaleX = percentage;
+            scale.ScaleY = percentage;
+
+            if (currentZoomValue < 100)
+            {
+                DrawCanvas.Height = this.ActualHeight - 170; //subtract 170 for ribbon height
+                DrawCanvas.Width = this.ActualWidth;
+            }
+
+            else
+            {
+                DrawCanvas.Height = (this.ActualHeight - 170) * percentage; //subtract 170 for ribbon height
+                DrawCanvas.Width = this.ActualWidth * percentage;
+            }            
+
+            //set zoom percent text
+
+            _currentZoomPercent = currentZoomValue;
+            Proportion.Text = $"{_currentZoomPercent}%";
         }
+
     }
 }

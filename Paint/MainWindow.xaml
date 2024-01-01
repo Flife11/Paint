@@ -55,8 +55,8 @@
                 <Fluent:Button Header="Copy" Icon="Resource/Icon/60341.PNG" SizeDefinition="Middle,Small" Name="CopyButton"></Fluent:Button>
             </Fluent:RibbonGroupBox>
             <Fluent:RibbonGroupBox Header="Tool" >
-                <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Name="Undo"></Fluent:Button>
-                <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Name="Redo"></Fluent:Button>
+                <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Click="UndoButton_Click"></Fluent:Button>
+                <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Click="RedoButton_Click"></Fluent:Button>
                 <Fluent:Button  Header="Delete" Icon="Resource/Icon/60565.PNG" SizeDefinition="Middle,Small" Name="DeleteButton"></Fluent:Button>
 
                     <Fluent:ToggleButton  Header="Select" Icon="Resource/Icon/Move.PNG" SizeDefinition="Middle,Small" Name="SelectButton"></Fluent:ToggleButton>

@@ -26,6 +26,8 @@ namespace Paint
         public MainWindow()
         {
             InitializeComponent();
+            var window = Window.GetWindow(this);
+            window.KeyDown += HandleKeyPressed;
         }
 
         bool _isDrawing = false;
@@ -58,6 +60,10 @@ namespace Paint
         // Zoom
         private int _startZoom = 0;
         private double _currentZoomPercent = 100;
+
+        // Undo/Redo
+        public StringBuilder hotkeyText = new StringBuilder();
+        private List<IShape> redoIShape = new List<IShape>();
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -286,5 +292,89 @@ namespace Paint
             Proportion.Text = $"{_currentZoomPercent}%";
         }
 
+        private void HandleKeyPressed(object sender, KeyEventArgs e)
+        {
+            //đánh dấu đã xử lý sự kiện
+            e.Handled = true;
+
+
+            //kiểm tra nếu là phím hệ thống thì không xử lý
+            Key key = (e.Key == Key.System ? e.SystemKey : e.Key);
+            if (key == Key.LeftCtrl || key == Key.RightCtrl || key == Key.LeftAlt || key == Key.RightAlt || key == Key.LWin || key == Key.RWin) {
+                return;
+            }
+
+            //tạo chuỗi tổ hợp phím
+            hotkeyText = new StringBuilder();
+
+            //thực hiện kiểm tra phím đầu tiên trong tổ hợp phím
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                hotkeyText.Append("Ctrl");
+            }
+
+            //đưa phím thứ 2 vào chuỗi tổ hợp phím
+            hotkeyText.Append(key.ToString());
+
+            //thực hiện kiểm tra phím thứ 2 trong tổ hợp phím
+            if (hotkeyText.ToString() == "CtrlZ") {
+                Undo();
+            }
+            if (hotkeyText.ToString() == "CtrlY") {
+                Redo();
+            }
+
+        }
+
+        private void Undo()
+        {
+            //nếu shape vừa vẽ xong, chưa buông chuột thì buông chuột :0
+            if (_selectedShapeIndex != null)
+            {
+                _shapes[_selectedShapeIndex.Value].IsSelected = false;
+                _selectedShapeIndex = null;
+            }
+
+            //nếu ko có shape nào thì ko undo, return hàm
+            if (_shapes.Count == 0) 
+                return;
+
+            //đưa shape sẽ undo vào redoIShape để sau này redo nếu cần, đồng thời xóa shape đó khỏi _shapes
+            redoIShape.Add(_shapes[_shapes.Count - 1]);
+            _shapes.RemoveAt(_shapes.Count - 1);
+
+            //vẽ lại lên canvas
+            ReDraw();
+        }
+
+        private void Redo()
+        {   
+            //nếu ko có shape nào thì ko redo, return hàm
+            if (redoIShape.Count == 0) 
+                return;
+
+            //nếu shape vừa vẽ xong, chưa buông chuột thì buông chuột :0
+            if (_selectedShapeIndex != null)
+            {
+                _shapes[_selectedShapeIndex.Value].IsSelected = false;
+                _selectedShapeIndex = null;
+            };
+
+            //đưa shape sẽ redo vào _shapes, đồng thời xóa shape đó khỏi redoIShape (vì đã redo rồi)
+            _shapes.Add(redoIShape[redoIShape.Count - 1]);
+            redoIShape.RemoveAt(redoIShape.Count - 1);
+
+            //vẽ lại lên canvas
+            ReDraw();
+        }
+
+        private void UndoButton_Click(object sender, RoutedEventArgs e)
+        {
+            Undo();
+        }
+
+        private void RedoButton_Click(object sender, RoutedEventArgs e)
+        {
+            Redo();
+        }
     }
 }

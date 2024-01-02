@@ -14,7 +14,7 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{materialDesign:MaterialDesignFont}"                                    
-        Title="MainWindow" Height="450" Width="800" 
+        Title="MainWindow" Height="600" Width="800" 
                      Loaded="Window_Loaded">
 <Fluent:RibbonWindow.Resources>
     <Style TargetType="{x:Type CheckBox}" x:Key="EyeCheckboxStyle">
@@ -53,7 +53,9 @@
                 <Fluent:Button Header="Paste" Icon="Resource/Icon/60329.PNG" SizeDefinition="Large" Name="PasteButton"></Fluent:Button>
                 <Fluent:Button Header="Cut" Icon="Resource/Icon/60337.PNG" SizeDefinition="Middle,Small" Name="CutButton"></Fluent:Button>
                 <Fluent:Button Header="Copy" Icon="Resource/Icon/60341.PNG" SizeDefinition="Middle,Small" Name="CopyButton"></Fluent:Button>
-            </Fluent:RibbonGroupBox>
+                    <Fluent:Button Header="Image" Icon="Resource/Icon/image.PNG" SizeDefinition="Middle,Small" Name="AddImageButton" Click="OpenImageDialog_Click"></Fluent:Button>
+
+                </Fluent:RibbonGroupBox>
             <Fluent:RibbonGroupBox Header="Tool" >
                 <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Click="UndoButton_Click"></Fluent:Button>
                 <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Click="RedoButton_Click"></Fluent:Button>
@@ -114,7 +116,7 @@
 
 
                 <Fluent:RibbonGroupBox x:Name="Layer" Header="Layer" Height="120">
-                    <ListView Name="ListViewLayers" Padding="0 0 0 0" Margin="0 0 0 0" Height="90" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Single" SelectedIndex="0">
+                    <ListView Name="ListViewLayers" Padding="0 0 0 0" Margin="0 0 0 0" Height="90" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionChanged="ListViewLayers_SelectionChanged" SelectionMode="Single" SelectedIndex="0">
                         <ListView.Resources>
                             <ContextMenu x:Key="ItemContextMenu">
                                 <MenuItem x:Name="DeleteLayerBtn" Header="Delete"></MenuItem>
@@ -145,8 +147,8 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Fluent:Button  Header="Add" Icon="Resource/Icon/Add.PNG" SizeDefinition="medium"></Fluent:Button>
-                    <Fluent:Button  Header="Delete" Icon="Resource/Icon/delete.PNG" SizeDefinition="medium"></Fluent:Button>
+                    <Fluent:Button  Header="Add" Icon="Resource/Icon/Add.PNG" SizeDefinition="medium"  Click="AddLayerBtn_Click"></Fluent:Button>
+                    <Fluent:Button  Header="Delete" Icon="Resource/Icon/delete.PNG" SizeDefinition="medium"  Click="DeleteLayerBtn_Click"></Fluent:Button>
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
 

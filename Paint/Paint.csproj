@@ -24,6 +24,7 @@
     <None Remove="Resource\Icon\disable-eye.png" />
     <None Remove="Resource\Icon\eye.png" />
     <None Remove="Resource\Icon\FontColor.png" />
+    <None Remove="Resource\Icon\image.png" />
     <None Remove="Resource\Icon\Italic.png" />
     <None Remove="Resource\Icon\Move.png" />
     <None Remove="Resource\Icon\Outline.png" />
@@ -65,6 +66,7 @@
     <Resource Include="Resource\Icon\disable-eye.png" />
     <Resource Include="Resource\Icon\eye.png" />
     <Resource Include="Resource\Icon\FontColor.png" />
+    <Resource Include="Resource\Icon\image.png" />
     <Resource Include="Resource\Icon\Italic.png" />
     <Resource Include="Resource\Icon\Move.png" />
     <Resource Include="Resource\Icon\Outline.png" />

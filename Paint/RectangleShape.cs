@@ -9,11 +9,13 @@ using System.IO;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace Paint
 {
     public class RectangleShape : IShape
     {
+        public BitmapImage _brush = null;
         public override UIElement Draw(bool isSelectMode, bool isOnTopLayer)
         {
             // TODO: can dam bao Diem 0 < Diem 1
@@ -27,8 +29,8 @@ namespace Paint
 
                 StrokeThickness = Thickness,
                 Stroke = new SolidColorBrush(Color),
-                StrokeDashArray = StrokeType,
-                Fill = new SolidColorBrush(Fill),
+                StrokeDashArray = StrokeType,   
+                Fill =_brush==null?  new SolidColorBrush(Fill) : new ImageBrush(_brush),
             };
 
             if (isSelectMode && isOnTopLayer)

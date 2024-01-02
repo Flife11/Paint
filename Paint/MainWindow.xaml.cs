@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Fluent;
 using Microsoft.Win32;
+using Path = System.IO.Path;
 
 namespace Paint
 {
@@ -22,10 +23,13 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : RibbonWindow, INotifyPropertyChanged
     {        
-        List<DoubleCollection> StrokeTypes = new List<DoubleCollection>() { new DoubleCollection() { 1, 0 }, new DoubleCollection() { 6, 1 }, new DoubleCollection() { 1 }, new DoubleCollection() { 6, 1, 1, 1 } };        
+        List<DoubleCollection> StrokeTypes = new List<DoubleCollection>() { new DoubleCollection() { 1, 0 }, new DoubleCollection() { 6, 1 }, new DoubleCollection() { 1 }, new DoubleCollection() { 6, 1, 1, 1 } };   
+        
         public MainWindow()
         {
             InitializeComponent();
+            var window = Window.GetWindow(this);
+            window.KeyDown += HandleKeyPressed;
         }
         private System.Windows.Controls.Image SelectedImage;
         bool _isDrawing = false;
@@ -36,21 +40,36 @@ namespace Paint
         List<IShape> _shapes = new List<IShape>();
         string _seletedPrototypeName = "";
         public static Dictionary<string, IShape> _prototypes = new Dictionary<string, IShape>();
+
+        //current shape dùng cho undo và redo
+        private List<IShape> currentIShape = new List<IShape>();
+
         //select, cut, copy, paste
         private int? _selectedShapeIndex;
         private int? _cutSelectedShapeIndex;
         private IShape _copiedShape;
+
+
         //Layer
         BindingList<Layer> layers = new BindingList<Layer>() { new Layer(0, true) };
         public int _currentLayer = 0;
         public int lowerLayersShapesCount = 0;
         public bool isDelete = false;
+        public static string FilePath = "";
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         // Shape style
         public Color StrokeColor { get; set; }
         public Color FillColor { get; set; }
+
+        // Zoom
+        private int _startZoom = 0;
+        private double _currentZoomPercent = 100;
+
+        // Undo/Redo
+        public StringBuilder hotkeyText = new StringBuilder();
+        private List<IShape> redoIShape = new List<IShape>();
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -251,9 +270,304 @@ namespace Paint
             }
         }
 
-        private void ZoomingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            //handle skip zoom start: one for onload - one for after loading, set sliderbar's value to 100
 
+            if (_startZoom < 2)
+            {
+                _startZoom++;
+                return;
+            }
+
+            //start zooming
+
+            var currentZoomValue = (double)ZoomSlider.Value;
+            var scale = new ScaleTransform();
+            double percentage = (currentZoomValue / 100);
+
+            DrawCanvas.RenderTransform = scale;            
+            scale.ScaleX = percentage;
+            scale.ScaleY = percentage;
+
+            if (currentZoomValue < 100)
+            {
+                DrawCanvas.Height = this.ActualHeight - 170; //subtract 170 for ribbon height
+                DrawCanvas.Width = this.ActualWidth;
+            }
+
+            else
+            {
+                DrawCanvas.Height = (this.ActualHeight - 170) * percentage; //subtract 170 for ribbon height
+                DrawCanvas.Width = this.ActualWidth * percentage;
+            }            
+
+            //set zoom percent text
+
+            _currentZoomPercent = currentZoomValue;
+            Proportion.Text = $"{_currentZoomPercent}%";
+        }
+
+        private void HandleKeyPressed(object sender, KeyEventArgs e)
+        {
+            //đánh dấu đã xử lý sự kiện
+            e.Handled = true;
+
+
+            //kiểm tra nếu là phím hệ thống thì không xử lý
+            Key key = (e.Key == Key.System ? e.SystemKey : e.Key);
+            if (key == Key.LeftCtrl || key == Key.RightCtrl || key == Key.LeftAlt || key == Key.RightAlt || key == Key.LWin || key == Key.RWin) {
+                return;
+            }
+
+            //tạo chuỗi tổ hợp phím
+            hotkeyText = new StringBuilder();
+
+            //thực hiện kiểm tra phím đầu tiên trong tổ hợp phím
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                hotkeyText.Append("Ctrl");
+            }
+
+            //đưa phím thứ 2 vào chuỗi tổ hợp phím
+            hotkeyText.Append(key.ToString());
+
+            //thực hiện kiểm tra phím thứ 2 trong tổ hợp phím
+            if (hotkeyText.ToString() == "CtrlZ") {
+                Undo();
+            }
+            if (hotkeyText.ToString() == "CtrlY") {
+                Redo();
+            }
+
+        }
+
+        private void Undo()
+        {
+            //nếu shape vừa vẽ xong, chưa buông chuột thì buông chuột :0
+            if (_selectedShapeIndex != null)
+            {
+                _shapes[_selectedShapeIndex.Value].IsSelected = false;
+                _selectedShapeIndex = null;
+            }
+
+            //nếu ko có shape nào thì ko undo, return hàm
+            if (_shapes.Count == 0) 
+                return;
+
+            //đưa shape sẽ undo vào redoIShape để sau này redo nếu cần, đồng thời xóa shape đó khỏi _shapes
+            redoIShape.Add(_shapes[_shapes.Count - 1]);
+            _shapes.RemoveAt(_shapes.Count - 1);
+
+            //vẽ lại lên canvas
+            ReDraw();
+        }
+
+        private void Redo()
+        {   
+            //nếu ko có shape nào thì ko redo, return hàm
+            if (redoIShape.Count == 0) 
+                return;
+
+            //nếu shape vừa vẽ xong, chưa buông chuột thì buông chuột :0
+            if (_selectedShapeIndex != null)
+            {
+                _shapes[_selectedShapeIndex.Value].IsSelected = false;
+                _selectedShapeIndex = null;
+            };
+
+            //đưa shape sẽ redo vào _shapes, đồng thời xóa shape đó khỏi redoIShape (vì đã redo rồi)
+            _shapes.Add(redoIShape[redoIShape.Count - 1]);
+            redoIShape.RemoveAt(redoIShape.Count - 1);
+
+            //vẽ lại lên canvas
+            ReDraw();
+        }
+
+        private void UndoButton_Click(object sender, RoutedEventArgs e)
+        {
+            Undo();
+        }
+
+        private void RedoButton_Click(object sender, RoutedEventArgs e)
+        {
+            Redo();
+        }
+
+        //Hàm cho chức năng save và save as:
+        void CreateBitmapFromVisual(Visual target, string filename, string filerType)   //Tạo ảnh nếu chọn file ảnh
+        {
+            if (target == null)
+                return;
+
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(target);
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap((Int32)bounds.Width, (Int32)bounds.Height, 96, 96, PixelFormats.Pbgra32);
+
+            DrawingVisual dv = new DrawingVisual();
+
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                VisualBrush vb = new VisualBrush(target);
+                dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
+            }
+
+            rtb.Render(dv);
+            switch (filerType)
+            {
+                case ".png":
+                    PngBitmapEncoder png = new PngBitmapEncoder();
+
+                    png.Frames.Add(BitmapFrame.Create(rtb));
+                    using (Stream stm = File.Create(filename))
+                    {
+                        png.Save(stm);
+                    }
+                    break;
+                case ".bmp":
+                    BitmapEncoder bmp = new BmpBitmapEncoder();
+                    bmp.Frames.Add(BitmapFrame.Create(rtb));
+                    using (Stream stm = File.OpenWrite(filename))
+                    {
+                        bmp.Save(stm);
+                    }
+
+                    break;
+                case ".jpg":
+                    JpegBitmapEncoder jpg = new JpegBitmapEncoder();
+                    jpg.Frames.Add(BitmapFrame.Create(rtb));
+                    using (Stream stm = File.OpenWrite(filename))
+                    {
+                        jpg.Save(stm);
+                    }
+                    break;
+            }
+        }
+        public void SaveNew()   //Tạo file binary nếu chọn file binary
+        {
+            using (var stream = new FileStream(FilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+
+            using (var bw = new BinaryWriter(stream))
+            {
+                Paint.Layer.WriteLayerListBinary(bw, layers.ToList());
+            }
+        }
+        private void SaveAs()
+        {
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            saveFileDialog.DefaultExt = "png";
+            saveFileDialog.Filter = "PNG Files (*.png)|*.png|Binary Files (*.bin)|*.bin";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                FilePath = saveFileDialog.FileName;
+                switch (saveFileDialog.FilterIndex)
+                {
+                    case 1:
+                        {
+                            CreateBitmapFromVisual(DrawCanvas, saveFileDialog.FileName, ".png");
+                            break;
+                        }
+                    case 2:
+                        {
+                            SaveNew();
+                            break;
+                        }
+                }
+            }
+        }
+        private void Save()
+        {
+            if (FilePath == "")
+            {
+                //buttonSaveAs_Click(sender, e);
+                SaveAs();
+                return;
+            }
+            string ext = Path.GetExtension(FilePath);
+            DrawCanvas.UpdateLayout();
+            if (ext == ".bin")
+            {
+                SaveNew();
+                return;
+            }
+            CreateBitmapFromVisual(DrawCanvas, FilePath, ext);
+        }
+
+        private void buttonSave_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+        }
+
+        private void buttonSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            SaveAs();
+        }
+
+        private void OnLayersUpdated()
+        {
+            if (_selectedShapeIndex is not null)
+            {
+                _selectedShapeIndex = null;
+            }
+            lowerLayersShapesCount = 0;
+            for (int k = 0; k < _currentLayer; k++)
+            {
+                if (layers[k].isChecked) lowerLayersShapesCount += layers[k]._shapes.Count;
+            }
+            _cutSelectedShapeIndex = null;
+            _copiedShape = null;
+            currentIShape.Clear();
+            ReDraw();
+        }
+
+        private void buttonOpen_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog browseDialog = new Microsoft.Win32.OpenFileDialog();
+            browseDialog.Filter = "PNG Files (*.png)|*.png|Binary Files (*.bin)|*.bin";
+            browseDialog.FilterIndex = 1;
+            browseDialog.Multiselect = false;
+            if (browseDialog.ShowDialog() != true)
+            {
+                return;
+            }
+            FilePath = browseDialog.FileName;
+            if (Path.GetExtension(FilePath) == ".bin")
+            {
+                using (var stream = File.OpenRead(FilePath))
+                {
+                    using (var br = new BinaryReader(stream))
+                    {
+                        layers.Clear();
+                        var layerData = Paint.Layer.ReadLayerListBinary(br);
+                        foreach (var data in layerData)
+                        {
+                            layers.Add(data);
+                        }
+                    }
+                }
+
+                //Tính lại current layer và gán _shape = _shape của currentlayer
+                _currentLayer = 0;
+                ListViewLayers.SelectedIndex = _currentLayer;
+                _shapes = layers[_currentLayer]._shapes;
+                OnLayersUpdated();
+
+                return;
+            }
+            MemoryStream ms = new MemoryStream();
+            BitmapImage bi = new BitmapImage();
+            if (FilePath != null)
+            {
+                byte[] bytArray = File.ReadAllBytes(FilePath);
+                ms.Write(bytArray, 0, bytArray.Length);
+            }
+
+            ms.Position = 0;
+            bi.BeginInit();
+            bi.StreamSource = ms;
+            bi.EndInit();
+            ImageBrush ib = new ImageBrush();
+            ib.ImageSource = bi;
+            DrawCanvas.Background = ib;
         }
 
         private void OpenImageDialog_Click(object sender, RoutedEventArgs e)

@@ -41,9 +41,9 @@
         <Fluent:Ribbon.Menu>
             <Fluent:Backstage>
                 <Fluent:BackstageTabControl>
-                    <Fluent:Button x:Name="buttonSave" Header="Save"></Fluent:Button>
-                    <Fluent:Button x:Name="buttonSaveAs" Header="Save as"></Fluent:Button>
-                    <Fluent:Button x:Name="buttonOpen" Header="Open"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonSave" Header="Save" Click="buttonSave_Click"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonSaveAs" Header="Save as" Click="buttonSaveAs_Click"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonOpen" Header="Open" Click="buttonOpen_Click"></Fluent:Button>
                 </Fluent:BackstageTabControl>
             </Fluent:Backstage>
         </Fluent:Ribbon.Menu>
@@ -57,8 +57,8 @@
 
                 </Fluent:RibbonGroupBox>
             <Fluent:RibbonGroupBox Header="Tool" >
-                <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Name="Undo"></Fluent:Button>
-                <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Name="Redo"></Fluent:Button>
+                <Fluent:Button  Header="Undo" Icon="Resource/Icon/Undo.PNG" SizeDefinition="Middle,Small" Height="22" VerticalAlignment="Top" Click="UndoButton_Click"></Fluent:Button>
+                <Fluent:Button  Header="Redo" Icon="Resource/Icon/Redo.PNG" SizeDefinition="Middle,Small" Click="RedoButton_Click"></Fluent:Button>
                 <Fluent:Button  Header="Delete" Icon="Resource/Icon/60565.PNG" SizeDefinition="Middle,Small" Name="DeleteButton"></Fluent:Button>
 
                     <Fluent:ToggleButton  Header="Select" Icon="Resource/Icon/Move.PNG" SizeDefinition="Middle,Small" Name="SelectButton"></Fluent:ToggleButton>
@@ -160,14 +160,12 @@
         </Grid.RowDefinitions>
         <ScrollViewer
                 x:Name="CanvasScroll"  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" materialDesign:ScrollViewerAssist.CornerRectangleVisibility="Collapsed">
-                <Canvas Height="285" Width="8000"
+                <Canvas Height="285" Width="800"
                     x:Name="DrawCanvas" Background="White" Margin="4,2,0,0"
-                    ClipToBounds="True">
+                    ClipToBounds="True" >
                 </Canvas>
         </ScrollViewer>
-         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
-              
-            </Canvas>
+         <Canvas Grid.Row="0" Background="Transparent" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" Margin="0,0,17,17"></Canvas>
             <Grid Grid.Row="1" Background="#f0f0f0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -194,8 +192,8 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="100%"
                         Name="Proportion"/>
-                        <Slider x:Name="ZoomingSlider" Grid.Column="1"  ValueChanged="ZoomingSlider_ValueChanged"
-                     Minimum="50"  Maximum="400" TickFrequency="50" materialDesign:SliderAssist.OnlyShowFocusVisualWhileDragging="True" IsSnapToTickEnabled="True" Cursor="Hand"  Foreground="SlateGray"/>
+                        <Slider x:Name="ZoomSlider" Grid.Column="1" ValueChanged="ZoomSlider_ValueChanged"
+                     Minimum="50"  Maximum="300" TickFrequency="10" Value="100" materialDesign:SliderAssist.OnlyShowFocusVisualWhileDragging="True" IsSnapToTickEnabled="True" Cursor="Hand"  Foreground="SlateGray" Margin="0,-1,-143,-3" />
                     </Grid>
                 </Label>
             </Grid>

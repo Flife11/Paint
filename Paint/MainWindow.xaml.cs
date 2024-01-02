@@ -309,7 +309,7 @@ namespace Paint
         {
             Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
             saveFileDialog.DefaultExt = "png";
-            saveFileDialog.Filter = "PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPG Files (*.jpg)|*.jpg|Binary Files (*.bin)|*.bin";
+            saveFileDialog.Filter = "PNG Files (*.png)|*.png|Binary Files (*.bin)|*.bin";
             if (saveFileDialog.ShowDialog() == true)
             {
                 FilePath = saveFileDialog.FileName;
@@ -321,16 +321,6 @@ namespace Paint
                             break;
                         }
                     case 2:
-                        {
-                            CreateBitmapFromVisual(DrawCanvas, saveFileDialog.FileName, ".bmp");
-                            break;
-                        }
-                    case 3:
-                        {
-                            CreateBitmapFromVisual(DrawCanvas, saveFileDialog.FileName, ".jpg");
-                            break;
-                        }
-                    case 4:
                         {
                             SaveNew();
                             break;
@@ -386,7 +376,7 @@ namespace Paint
         private void buttonOpen_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog browseDialog = new Microsoft.Win32.OpenFileDialog();
-            browseDialog.Filter = "PNG Files (*.png)|*.png|BMP Files (*.bmp)|*.bmp|JPG Files (*.jpg)|*.jpg|Binary Files (*.bin)|*.bin";
+            browseDialog.Filter = "PNG Files (*.png)|*.png|Binary Files (*.bin)|*.bin";
             browseDialog.FilterIndex = 1;
             browseDialog.Multiselect = false;
             if (browseDialog.ShowDialog() != true)

@@ -72,14 +72,14 @@ namespace Paint
         public override IShape ReadShapeFromBinary(BinaryReader r)
         {
             var result = new LineShape();
-            PointP Start = new PointP();
-            PointP End = new PointP();
-            Start.X = r.ReadDouble();
-            Start.Y = r.ReadDouble();
-            End.X = r.ReadDouble();
-            End.Y = r.ReadDouble();
-            result.Points.Add(Start);
-            result.Points.Add(End);
+            PointP _start = new PointP();
+            PointP _end = new PointP();
+            _start.X = r.ReadDouble();
+            _start.Y = r.ReadDouble();
+            _end.X = r.ReadDouble();
+            _end.Y = r.ReadDouble();
+            result.Points.Add(_start);
+            result.Points.Add(_end);
             result.Thickness = r.ReadInt32();
             result.IsSelected = r.ReadBoolean();
             var tempColor = r.ReadString();

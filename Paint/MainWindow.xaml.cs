@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using Fluent;
 using Path = System.IO.Path;
 
+
 namespace Paint
 {
     /// <summary>
@@ -21,10 +22,13 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : RibbonWindow, INotifyPropertyChanged
     {        
-        List<DoubleCollection> StrokeTypes = new List<DoubleCollection>() { new DoubleCollection() { 1, 0 }, new DoubleCollection() { 6, 1 }, new DoubleCollection() { 1 }, new DoubleCollection() { 6, 1, 1, 1 } };        
+        List<DoubleCollection> StrokeTypes = new List<DoubleCollection>() { new DoubleCollection() { 1, 0 }, new DoubleCollection() { 6, 1 }, new DoubleCollection() { 1 }, new DoubleCollection() { 6, 1, 1, 1 } };   
+        
         public MainWindow()
         {
             InitializeComponent();
+            var window = Window.GetWindow(this);
+            window.KeyDown += HandleKeyPressed;
         }
 
         bool _isDrawing = false;
@@ -35,12 +39,16 @@ namespace Paint
         List<IShape> _shapes = new List<IShape>();
         string _seletedPrototypeName = "";
         public static Dictionary<string, IShape> _prototypes = new Dictionary<string, IShape>();
+
         //current shape dùng cho undo và redo
         private List<IShape> currentIShape = new List<IShape>();
+
         //select, cut, copy, paste
         private int? _selectedShapeIndex;
         private int? _cutSelectedShapeIndex;
         private IShape _copiedShape;
+
+
         //Layer
         BindingList<Layer> layers = new BindingList<Layer>() { new Layer(0, true) };
         public int _currentLayer = 0;
@@ -52,6 +60,14 @@ namespace Paint
         // Shape style
         public Color StrokeColor { get; set; }
         public Color FillColor { get; set; }
+
+        // Zoom
+        private int _startZoom = 0;
+        private double _currentZoomPercent = 100;
+
+        // Undo/Redo
+        public StringBuilder hotkeyText = new StringBuilder();
+        private List<IShape> redoIShape = new List<IShape>();
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -242,9 +258,127 @@ namespace Paint
             }
         }
 
-        private void ZoomingSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void ZoomSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            //handle skip zoom start: one for onload - one for after loading, set sliderbar's value to 100
 
+            if (_startZoom < 2)
+            {
+                _startZoom++;
+                return;
+            }
+
+            //start zooming
+
+            var currentZoomValue = (double)ZoomSlider.Value;
+            var scale = new ScaleTransform();
+            double percentage = (currentZoomValue / 100);
+
+            DrawCanvas.RenderTransform = scale;            
+            scale.ScaleX = percentage;
+            scale.ScaleY = percentage;
+
+            if (currentZoomValue < 100)
+            {
+                DrawCanvas.Height = this.ActualHeight - 170; //subtract 170 for ribbon height
+                DrawCanvas.Width = this.ActualWidth;
+            }
+
+            else
+            {
+                DrawCanvas.Height = (this.ActualHeight - 170) * percentage; //subtract 170 for ribbon height
+                DrawCanvas.Width = this.ActualWidth * percentage;
+            }            
+
+            //set zoom percent text
+
+            _currentZoomPercent = currentZoomValue;
+            Proportion.Text = $"{_currentZoomPercent}%";
+        }
+
+        private void HandleKeyPressed(object sender, KeyEventArgs e)
+        {
+            //đánh dấu đã xử lý sự kiện
+            e.Handled = true;
+
+
+            //kiểm tra nếu là phím hệ thống thì không xử lý
+            Key key = (e.Key == Key.System ? e.SystemKey : e.Key);
+            if (key == Key.LeftCtrl || key == Key.RightCtrl || key == Key.LeftAlt || key == Key.RightAlt || key == Key.LWin || key == Key.RWin) {
+                return;
+            }
+
+            //tạo chuỗi tổ hợp phím
+            hotkeyText = new StringBuilder();
+
+            //thực hiện kiểm tra phím đầu tiên trong tổ hợp phím
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                hotkeyText.Append("Ctrl");
+            }
+
+            //đưa phím thứ 2 vào chuỗi tổ hợp phím
+            hotkeyText.Append(key.ToString());
+
+            //thực hiện kiểm tra phím thứ 2 trong tổ hợp phím
+            if (hotkeyText.ToString() == "CtrlZ") {
+                Undo();
+            }
+            if (hotkeyText.ToString() == "CtrlY") {
+                Redo();
+            }
+
+        }
+
+        private void Undo()
+        {
+            //nếu shape vừa vẽ xong, chưa buông chuột thì buông chuột :0
+            if (_selectedShapeIndex != null)
+            {
+                _shapes[_selectedShapeIndex.Value].IsSelected = false;
+                _selectedShapeIndex = null;
+            }
+
+            //nếu ko có shape nào thì ko undo, return hàm
+            if (_shapes.Count == 0) 
+                return;
+
+            //đưa shape sẽ undo vào redoIShape để sau này redo nếu cần, đồng thời xóa shape đó khỏi _shapes
+            redoIShape.Add(_shapes[_shapes.Count - 1]);
+            _shapes.RemoveAt(_shapes.Count - 1);
+
+            //vẽ lại lên canvas
+            ReDraw();
+        }
+
+        private void Redo()
+        {   
+            //nếu ko có shape nào thì ko redo, return hàm
+            if (redoIShape.Count == 0) 
+                return;
+
+            //nếu shape vừa vẽ xong, chưa buông chuột thì buông chuột :0
+            if (_selectedShapeIndex != null)
+            {
+                _shapes[_selectedShapeIndex.Value].IsSelected = false;
+                _selectedShapeIndex = null;
+            };
+
+            //đưa shape sẽ redo vào _shapes, đồng thời xóa shape đó khỏi redoIShape (vì đã redo rồi)
+            _shapes.Add(redoIShape[redoIShape.Count - 1]);
+            redoIShape.RemoveAt(redoIShape.Count - 1);
+
+            //vẽ lại lên canvas
+            ReDraw();
+        }
+
+        private void UndoButton_Click(object sender, RoutedEventArgs e)
+        {
+            Undo();
+        }
+
+        private void RedoButton_Click(object sender, RoutedEventArgs e)
+        {
+            Redo();
         }
 
         //Hàm cho chức năng save và save as:

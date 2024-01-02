@@ -41,9 +41,9 @@
         <Fluent:Ribbon.Menu>
             <Fluent:Backstage>
                 <Fluent:BackstageTabControl>
-                    <Fluent:Button x:Name="buttonSave" Header="Save"></Fluent:Button>
-                    <Fluent:Button x:Name="buttonSaveAs" Header="Save as"></Fluent:Button>
-                    <Fluent:Button x:Name="buttonOpen" Header="Open"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonSave" Header="Save" Click="buttonSave_Click"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonSaveAs" Header="Save as" Click="buttonSaveAs_Click"></Fluent:Button>
+                    <Fluent:Button x:Name="buttonOpen" Header="Open" Click="buttonOpen_Click"></Fluent:Button>
                 </Fluent:BackstageTabControl>
             </Fluent:Backstage>
         </Fluent:Ribbon.Menu>

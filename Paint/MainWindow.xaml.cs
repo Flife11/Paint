@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Fluent;
+using Path = System.IO.Path;
 
 
 namespace Paint
@@ -39,6 +40,8 @@ namespace Paint
         string _seletedPrototypeName = "";
         public static Dictionary<string, IShape> _prototypes = new Dictionary<string, IShape>();
 
+        //current shape dùng cho undo và redo
+        private List<IShape> currentIShape = new List<IShape>();
 
         //select, cut, copy, paste
         private int? _selectedShapeIndex;
@@ -50,6 +53,7 @@ namespace Paint
         BindingList<Layer> layers = new BindingList<Layer>() { new Layer(0, true) };
         public int _currentLayer = 0;
         public int lowerLayersShapesCount = 0;
+        public static string FilePath = "";
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -375,6 +379,183 @@ namespace Paint
         private void RedoButton_Click(object sender, RoutedEventArgs e)
         {
             Redo();
+        }
+
+        //Hàm cho chức năng save và save as:
+        void CreateBitmapFromVisual(Visual target, string filename, string filerType)   //Tạo ảnh nếu chọn file ảnh
+        {
+            if (target == null)
+                return;
+
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(target);
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap((Int32)bounds.Width, (Int32)bounds.Height, 96, 96, PixelFormats.Pbgra32);
+
+            DrawingVisual dv = new DrawingVisual();
+
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                VisualBrush vb = new VisualBrush(target);
+                dc.DrawRectangle(vb, null, new Rect(new Point(), bounds.Size));
+            }
+
+            rtb.Render(dv);
+            switch (filerType)
+            {
+                case ".png":
+                    PngBitmapEncoder png = new PngBitmapEncoder();
+
+                    png.Frames.Add(BitmapFrame.Create(rtb));
+                    using (Stream stm = File.Create(filename))
+                    {
+                        png.Save(stm);
+                    }
+                    break;
+                case ".bmp":
+                    BitmapEncoder bmp = new BmpBitmapEncoder();
+                    bmp.Frames.Add(BitmapFrame.Create(rtb));
+                    using (Stream stm = File.OpenWrite(filename))
+                    {
+                        bmp.Save(stm);
+                    }
+
+                    break;
+                case ".jpg":
+                    JpegBitmapEncoder jpg = new JpegBitmapEncoder();
+                    jpg.Frames.Add(BitmapFrame.Create(rtb));
+                    using (Stream stm = File.OpenWrite(filename))
+                    {
+                        jpg.Save(stm);
+                    }
+                    break;
+            }
+        }
+        public void SaveNew()   //Tạo file binary nếu chọn file binary
+        {
+            using (var stream = new FileStream(FilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+
+            using (var bw = new BinaryWriter(stream))
+            {
+                Paint.Layer.WriteLayerListBinary(bw, layers.ToList());
+            }
+        }
+        private void SaveAs()
+        {
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            saveFileDialog.DefaultExt = "png";
+            saveFileDialog.Filter = "PNG Files (*.png)|*.png|Binary Files (*.bin)|*.bin";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                FilePath = saveFileDialog.FileName;
+                switch (saveFileDialog.FilterIndex)
+                {
+                    case 1:
+                        {
+                            CreateBitmapFromVisual(DrawCanvas, saveFileDialog.FileName, ".png");
+                            break;
+                        }
+                    case 2:
+                        {
+                            SaveNew();
+                            break;
+                        }
+                }
+            }
+        }
+        private void Save()
+        {
+            if (FilePath == "")
+            {
+                //buttonSaveAs_Click(sender, e);
+                SaveAs();
+                return;
+            }
+            string ext = Path.GetExtension(FilePath);
+            DrawCanvas.UpdateLayout();
+            if (ext == ".bin")
+            {
+                SaveNew();
+                return;
+            }
+            CreateBitmapFromVisual(DrawCanvas, FilePath, ext);
+        }
+
+        private void buttonSave_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+        }
+
+        private void buttonSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            SaveAs();
+        }
+
+        private void OnLayersUpdated()
+        {
+            if (_selectedShapeIndex is not null)
+            {
+                _selectedShapeIndex = null;
+            }
+            lowerLayersShapesCount = 0;
+            for (int k = 0; k < _currentLayer; k++)
+            {
+                if (layers[k].isChecked) lowerLayersShapesCount += layers[k]._shapes.Count;
+            }
+            _cutSelectedShapeIndex = null;
+            _copiedShape = null;
+            currentIShape.Clear();
+            ReDraw();
+        }
+
+        private void buttonOpen_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog browseDialog = new Microsoft.Win32.OpenFileDialog();
+            browseDialog.Filter = "PNG Files (*.png)|*.png|Binary Files (*.bin)|*.bin";
+            browseDialog.FilterIndex = 1;
+            browseDialog.Multiselect = false;
+            if (browseDialog.ShowDialog() != true)
+            {
+                return;
+            }
+            FilePath = browseDialog.FileName;
+            if (Path.GetExtension(FilePath) == ".bin")
+            {
+                using (var stream = File.OpenRead(FilePath))
+                {
+                    using (var br = new BinaryReader(stream))
+                    {
+                        layers.Clear();
+                        var layerData = Paint.Layer.ReadLayerListBinary(br);
+                        foreach (var data in layerData)
+                        {
+                            layers.Add(data);
+                        }
+                    }
+                }
+
+                //Tính lại current layer và gán _shape = _shape của currentlayer
+                _currentLayer = 0;
+                ListViewLayers.SelectedIndex = _currentLayer;
+                _shapes = layers[_currentLayer]._shapes;
+                OnLayersUpdated();
+
+                return;
+            }
+            MemoryStream ms = new MemoryStream();
+            BitmapImage bi = new BitmapImage();
+            if (FilePath != null)
+            {
+                byte[] bytArray = File.ReadAllBytes(FilePath);
+                ms.Write(bytArray, 0, bytArray.Length);
+            }
+
+            ms.Position = 0;
+            bi.BeginInit();
+            bi.StreamSource = ms;
+            bi.EndInit();
+            ImageBrush ib = new ImageBrush();
+            ib.ImageSource = bi;
+            DrawCanvas.Background = ib;
         }
     }
 }

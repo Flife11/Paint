@@ -71,12 +71,46 @@ namespace Paint
 
         public override void WriteShapeToBinary(BinaryWriter w)
         {
-            throw new NotImplementedException();
+            w.Write(Name);
+            w.Write(Points[0].X);
+            w.Write(Points[0].Y);
+            w.Write(Points[1].X);
+            w.Write(Points[1].Y);
+            w.Write(Thickness);
+            w.Write(IsSelected);
+            w.Write(Color.ToString());
+            w.Write(Fill.ToString());
+            w.Write(StrokeType.Count);
+            foreach (var item in StrokeType)
+            {
+                w.Write(item);
+            }
         }
 
         public override IShape ReadShapeFromBinary(BinaryReader r)
         {
-            throw new NotImplementedException();
+            var result = new RectangleShape();
+            PointP Start = new PointP();
+            PointP End = new PointP();
+            Start.X = r.ReadDouble();
+            Start.Y = r.ReadDouble();
+            End.X = r.ReadDouble();
+            End.Y = r.ReadDouble();
+            result.Points.Add(Start);
+            result.Points.Add(End);
+            result.Thickness = r.ReadInt32();
+            result.IsSelected = r.ReadBoolean();
+            var tempColor = r.ReadString();
+            result.Color = (Color)ColorConverter.ConvertFromString(tempColor);
+            var tempFill = r.ReadString();
+            result.Fill = (Color)ColorConverter.ConvertFromString(tempFill);
+            var count = r.ReadInt32();
+            result.StrokeType = new DoubleCollection();
+            for (int i = 0; i < count; i++)
+            {
+                result.StrokeType.Add(r.ReadDouble());
+            }
+            return result;
         }
 
         public override string Name => "Rectangle";

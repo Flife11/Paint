@@ -655,7 +655,7 @@ namespace Paint
             
 
             isDelete = true;
-            OnLayersUpdated();
+            OnLayersUpdatedDraw();
         }
 
         private void ListViewLayers_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -667,7 +667,7 @@ namespace Paint
             _shapes = layers[_currentLayer]._shapes;
             isDelete = false;
         }
-        private void OnLayersUpdated()
+        private void OnLayersUpdatedDraw()
         {
             if (_selectedShapeIndex is not null)
             {

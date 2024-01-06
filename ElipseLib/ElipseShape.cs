@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using System.IO;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
-using System.IO;
-using System.Windows.Input;
+using Contract;
 
-namespace Paint
+namespace ElipseLib
 {
     public class ElipseShape : IShape
     {
         public override string Name => "Elipse";
 
         public ElipseShape()
-        {                       
-        }        
+        {
+        }
 
         public override IShape Clone()
         {

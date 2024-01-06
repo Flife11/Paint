@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows;
+
 using System.IO;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using System.Windows;
+using Contract;
+using System.Windows.Shapes;
 
-namespace Paint
+namespace RectangleLib
 {
     public class RectangleShape : IShape
     {
@@ -29,8 +26,8 @@ namespace Paint
 
                 StrokeThickness = Thickness,
                 Stroke = new SolidColorBrush(Color),
-                StrokeDashArray = StrokeType,   
-                Fill =_brush==null?  new SolidColorBrush(Fill) : new ImageBrush(_brush),
+                StrokeDashArray = StrokeType,
+                Fill = _brush == null ? new SolidColorBrush(Fill) : new ImageBrush(_brush),
             };
 
             if (isSelectMode && isOnTopLayer)
@@ -117,4 +114,5 @@ namespace Paint
 
         public override string Name => "Rectangle";
     }
+
 }
